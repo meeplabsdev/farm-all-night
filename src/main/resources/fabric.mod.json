@@ -1,0 +1,43 @@
+{
+	"schemaVersion": 1,
+	"id": "farmutils",
+	"version": "${version}",
+	"name": "Farm Utils",
+	"description": "A feature rich auto-farming mod!",
+	"authors": [
+		"meeplabsdev"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/farmutils/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"meeplabsdev.farmutils.FarmUtils"
+		],
+		"client": [
+			"meeplabsdev.farmutils.FarmUtilsClient"
+		],
+		"fabric-datagen": [
+			"meeplabsdev.farmutils.FarmUtilsDataGenerator"
+		]
+	},
+	"mixins": [
+		"farmutils.mixins.json",
+		{
+			"config": "farmutils.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.14.24",
+		"minecraft": "~1.20.2",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+	}
+}
