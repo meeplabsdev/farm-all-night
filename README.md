@@ -28,3 +28,5 @@ Each setting can be controlled with the corresponding keyword:
 | Whether or not to auto-plant crops on empty farmland.   | autoPlant          |
 
 For example, to disable the harvest sound, the command would be `/farmutils harvestSound false`.
+Once you have finished customising the options, run `/farmutils start` to start the harvest.
+Similarly, `/farmutils stop` will stop it.
