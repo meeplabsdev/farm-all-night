@@ -3,25 +3,20 @@ package meeplabsdev.farmutils;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import meeplabsdev.farmutils.arguments.ActionArgumentType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.command.argument.EntityAnchorArgumentType;
-import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.minecraft.block.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.item.Items;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.slf4j.Logger;
@@ -48,8 +43,6 @@ public class FarmUtilsClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         LOGGER.info("Loading FarmUtils...");
-
-        ArgumentTypeRegistry.registerArgumentType(new Identifier("farmutils", "action"), ActionArgumentType.class, ConstantArgumentSerializer.of(ActionArgumentType::action));
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, access) -> {
                 dispatcher.register(ClientCommandManager.literal("farmutils")
@@ -131,7 +124,7 @@ public class FarmUtilsClient implements ClientModInitializer {
                     BlockState blockState = minecraft.world.getBlockState(BlockPos.ofFloored(targetPos));
                     Block block = blockState.getBlock();
 
-                    if (blockState.isOf(Blocks.WHEAT)) {
+                    if (CropHelper.isCrop(block)) {
                         if (CropHelper.isMature(blockState, block)) {
                             spawner.spawnParticle(ParticleTypes.ELECTRIC_SPARK, targetPos.x, targetPos.y + 0.4, targetPos.z, 0, 0, 0);
 
@@ -142,8 +135,6 @@ public class FarmUtilsClient implements ClientModInitializer {
                         if (cropState.isOf(Blocks.AIR)) {
                             spawner.spawnParticle(ParticleTypes.WAX_ON, targetPos.x, targetPos.y + 1.2, targetPos.z, 0, 0, 0);
 
-//                            BlockPos blockPos = new BlockPos((int) targetPos.x, (int) targetPos.y, (int) targetPos.z);
-//                            CropHelper.plant(blockPos, block);
                             if (!blocksToPlant.contains(targetPos)) blocksToPlant.add(targetPos);
                         }
                     }
@@ -181,7 +172,7 @@ public class FarmUtilsClient implements ClientModInitializer {
                 Block block = blockState.getBlock();
                 BlockPos blockPos = new BlockPos((int) targetPos.x, (int) targetPos.y, (int) targetPos.z);
 
-                if (blockPos.toCenterPos().distanceTo(minecraft.player.getPos()) <= 4 && minecraft.player.getInventory().count(Items.WHEAT_SEEDS) >= 3) {
+                if (blockPos.toCenterPos().distanceTo(minecraft.player.getPos()) <= 4 && CropHelper.levelSeeds() >= 3) {
                     minecraft.player.lookAt(EntityAnchorArgumentType.EntityAnchor.EYES, targetPos);
                     CropHelper.till(blockPos, block);
                     CropHelper.plant(blockPos, block);
@@ -262,7 +253,8 @@ public class FarmUtilsClient implements ClientModInitializer {
                 }
             }
 
-            if (logOnInvFull && minecraft.player.getInventory().size() >= 36) {
+            if (logOnInvFull && minecraft.player.getInventory().getEmptySlot() == -1) {
+                logOnInvFull = false;
                 minecraft.disconnect(new DisconnectedScreen(minecraft.currentScreen, Text.literal("Disconnected by FarmUtils"), Text.literal("Inventory Full"), Text.literal("Exit")));
             }
         }

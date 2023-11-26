@@ -3,6 +3,7 @@ package meeplabsdev.farmutils;
 import net.minecraft.block.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.HoeItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.util.Hand;
@@ -11,7 +12,21 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldView;
 
+import java.util.Arrays;
+
 public class CropHelper {
+    public static final Item[] SEEDS = {
+            Items.WHEAT_SEEDS,
+            Items.CARROT,
+            Items.POTATO,
+            Items.BEETROOT_SEEDS,
+            Items.COCOA_BEANS,
+            Items.MELON_SEEDS,
+            Items.PUMPKIN_SEEDS,
+            Items.SWEET_BERRIES,
+            Items.NETHER_WART,
+    };
+
     public static boolean till(BlockPos pos, Block block) {
         MinecraftClient minecraft = MinecraftClient.getInstance();
         boolean moist = isWaterNearby(minecraft.world, pos);
@@ -44,7 +59,7 @@ public class CropHelper {
         Integer plantSlot = -1;
         if (!minecraft.world.isAir(pos.up())) return;
         if (block instanceof FarmlandBlock) {
-            plantSlot = InvUtils.findInHotbar(itemStack -> itemStack.getItem() == Items.WHEAT_SEEDS);
+            plantSlot = InvUtils.findInHotbar(itemStack -> itemStack.getItem() != Items.NETHER_WART && Arrays.stream(SEEDS).toList().contains(itemStack.getItem()));
         } else if (block instanceof SoulSandBlock) {
             plantSlot = InvUtils.findInHotbar(itemStack -> itemStack.getItem() == Items.NETHER_WART);
         }
@@ -84,5 +99,28 @@ public class CropHelper {
             return !netherWartBlock.hasRandomTicks(state);
         }
         return false;
+    }
+
+    public static boolean isCrop(Block block) {
+        return (block instanceof CropBlock
+            || block instanceof CocoaBlock
+            || block instanceof StemBlock
+            || block instanceof SweetBerryBushBlock
+            || block instanceof NetherWartBlock);
+    }
+
+    public static boolean isSeed(Item item) {
+        return Arrays.stream(SEEDS).toList().contains(item);
+    }
+
+    public static int levelSeeds() {
+        MinecraftClient minecraft = MinecraftClient.getInstance();
+        int max = 0;
+        for (Item seed : SEEDS) {
+            int num = minecraft.player.getInventory().count(seed);
+            if (num > max) max = num;
+        }
+
+        return max;
     }
 }
