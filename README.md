@@ -10,10 +10,6 @@
 <blockquote style="text-align: center;">Farm All Night is a utility mod to enhance the experience of farming crops.
 </blockquote>
 
-<h3 align="center">
-<a href="https://modrinth.com/mod/farm-all-night" target="_blank">Modrinth Homepage</a>
-</h3>
-
 ## Usage
 The simple chat commands can be used to control and fine tune the settings.
 Each setting can be controlled with the corresponding keyword:
